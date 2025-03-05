@@ -9,11 +9,11 @@ const handler = {
   parsed_arg_2: 0,
   which_string_is: 0,
   opcode: 0,
-  // got_second_str: false,
-  // got_first_str: false,
   op_result: 0,
   op_was_made: false,
   prev_opcode: 0,
+  two_op_clicked: 0,
+  equal_hit: false,
 };
 
 const select_all_buttons = () => {
@@ -29,29 +29,44 @@ const select_all_buttons = () => {
 
 const show_chained_calculation = (button) => {
   let displayNumber = document.querySelector(".calculation-chain");
+
   displayNumber.style.display = "block";
+  
+    if (
+      displayNumber.value === "0" &&
+      handler.counter_chain === 0 // if two operators were not clicked
+    ) {
+      // clear the input when user starts typing
+      handler.counter_chain++;
+      displayNumber.value = "";
+    }
 
-  if (displayNumber.value === "0" && handler.counter_chain === 0) {
-    // clear the input when user starts typing
-    handler.counter_chain++;
-    displayNumber.value = "";
-  }
-
-  if (!button.classList.contains("all-clear")) {
-    // prevent writing operators to the display
-    displayNumber.value += button.textContent;
-  }
-  if (handler.op_was_made) {
-    displayNumber.value += handler.op_result;
-  }
+    if (
+      !button.classList.contains("all-clear") &&
+      handler.two_op_clicked <= 1
+    ) {
+      // prevent writing operators to the display
+      displayNumber.value += button.textContent;
+    }
+    if (handler.op_was_made) {
+      displayNumber.value += handler.op_result;
+    }
+    if (handler.equal_hit === true) {
+      displayNumber.value = "";
+    }
+    handler.equal_hit = false;
+  
 };
 
 const show_unchained_calculation = (button) => {
-  debugger
+  //debugger;
   let displayNumber = document.querySelector(".calculator-screen__input"); // get the input element of display
   // checks if only numbers were hit
   if (!button.classList.contains("operator")) {
+    handler.two_op_clicked = 0;
     handler.operator_was_hit = false;
+  } else {
+    handler.two_op_clicked++;
   }
 
   // clears the input when user starts typing
@@ -106,38 +121,33 @@ const calculation = (displayNumber) => {
   handler.which_string_is++;
 
   if (handler.which_string_is === 2) {
+    switch (handler.prev_opcode) {
+      case 1:
+        handler.op_was_made = true;
+        handler.op_result = handler.parsed_arg + handler.parsed_arg_2;
+        break;
+      case 2:
+        handler.op_was_made = true;
+        handler.op_result = handler.parsed_arg - handler.parsed_arg_2;
+        break;
+      case 3:
+        handler.op_was_made = true;
+        handler.op_result = handler.parsed_arg * handler.parsed_arg_2;
+        break;
+      case 4:
+        handler.op_was_made = true;
+        handler.op_result = handler.parsed_arg / handler.parsed_arg_2;
+        break;
+      case 5:
+        handler.op_was_made = true;
+        handler.op_result = handler.parsed_arg % handler.parsed_arg_2;
+        break;
+      case 6:
+        break;
+      default:
+        break;
+    }
 
-    
-      switch (handler.prev_opcode) {
-        case 1:
-          handler.op_was_made = true;
-          handler.op_result = handler.parsed_arg + handler.parsed_arg_2;
-          break;
-        case 2:
-          handler.op_was_made = true;
-          handler.op_result = handler.parsed_arg - handler.parsed_arg_2;
-          break;
-        case 3:
-          handler.op_was_made = true;
-          handler.op_result = handler.parsed_arg * handler.parsed_arg_2;
-          break;
-        case 4:
-          handler.op_was_made = true;
-          handler.op_result = handler.parsed_arg / handler.parsed_arg_2;
-          break;
-        case 5:
-          handler.op_was_made = true;
-          handler.op_result = handler.parsed_arg % handler.parsed_arg_2;
-          break;
-        case 6: 
-
-          break;
-        default:
-          break;
-      }
-    
-   
- 
     handler.which_string_is = 0;
   }
 
@@ -149,7 +159,7 @@ const handle_each_click = (button) => {
   if (button.classList.contains("operator")) {
     switch (button.textContent) {
       case "AC":
-        handler.prev_opcode = handler.opcode
+        handler.prev_opcode = handler.opcode;
         handler.which_string_is = 0; // ac before hitting equal
         handler.operator_was_hit = true; // control not display operator
         handler.counter_first_hit = 0; // make the first hit again
@@ -159,41 +169,41 @@ const handle_each_click = (button) => {
         });
         break;
       case "+":
-        handler.prev_opcode = handler.opcode
+        handler.prev_opcode = handler.opcode;
         handler.opcode = 1;
         handler.capture_string++;
         handler.operator_was_hit = true;
         break;
       case "-":
-        handler.prev_opcode = handler.opcode
+        handler.prev_opcode = handler.opcode;
         handler.opcode = 2;
         handler.capture_string++;
         handler.operator_was_hit = true;
         break;
       case "*":
-        handler.prev_opcode = handler.opcode
+        handler.prev_opcode = handler.opcode;
         handler.opcode = 3;
         handler.capture_string++;
         handler.operator_was_hit = true;
         break;
       case "/":
-        handler.prev_opcode = handler.opcode
+        handler.prev_opcode = handler.opcode;
         handler.opcode = 4;
         handler.capture_string++;
         handler.operator_was_hit = true;
         break;
       case "%":
-        handler.prev_opcode = handler.opcode
+        handler.prev_opcode = handler.opcode;
         handler.opcode = 5;
         handler.capture_string++;
         handler.operator_was_hit = true;
         break;
       case "=":
-        handler.prev_opcode = handler.opcode
+        handler.prev_opcode = handler.opcode;
         handler.opcode = 6;
         handler.capture_string++;
         handler.operator_was_hit = true;
-
+        handler.equal_hit = true;
         break;
       default:
         return;
